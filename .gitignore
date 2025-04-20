@@ -1,0 +1,4 @@
+spaasm
+*.o
+log.txt
+*.zip
