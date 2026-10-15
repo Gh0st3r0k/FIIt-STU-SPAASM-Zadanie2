@@ -1,20 +1,43 @@
-![Socket Shell — commands across a connection](docs/cover.svg)
+<h1 align="center">SPAASM · Socket Shell</h1>
 
-# Socket Shell
+<p align="center">
+  <strong>A terminal shell built around processes and TCP sockets.</strong>
+</p>
 
-A terminal client and TCP command server written in **C for Linux**. The client sends commands over a socket; the server runs them in child processes and returns their output. Built as a systems programming assignment exploring POSIX processes, file descriptors, and network I/O.
+<p align="center">
+  Send commands from a C client, execute them on the server, and explore POSIX process and network I/O.
+</p>
 
-**[Quick start](#quick-start) · [Try a session](#try-a-session) · [Inside the project](#inside-the-project) · [Companion project ↗](https://github.com/Gh0st3r0k/FIIT-STU-SPAASM-Zadanie1)**
+<p align="center">
+  <a href="#getting-started">Getting started</a> ·
+  <a href="#usage">Usage</a> ·
+  <a href="#development">Development</a> ·
+  <a href="#limitations">Limitations</a>
+</p>
 
-## What it does
+<p align="center">
+  <img src="https://img.shields.io/badge/C-POSIX-3178C6?style=flat-square" alt="C · POSIX">
+  <img src="https://img.shields.io/badge/Platform-Linux-FCC624?style=flat-square" alt="Platform: Linux">
+  <img src="https://img.shields.io/badge/FIIT_STU-SPAASM-555555?style=flat-square" alt="FIIT STU · SPAASM">
+  <img src="https://img.shields.io/badge/Assignment-2-555555?style=flat-square" alt="Assignment 2">
+</p>
 
-- Handles client connections with a process-per-client server.
-- Runs external commands using `fork`, `execvp`, pipes, and `waitpid`.
-- Supports input/output redirection, `;` command separators, and `#` comments.
-- Tracks clients in shared memory and disconnects inactive sessions.
-- Offers a customizable client prompt, verbose output, and optional file logging.
+---
 
-## Quick start
+## Overview
+
+This is the second assignment for the **SPAASM course at FIIT STU**. It uses **C and POSIX APIs** to connect an interactive client to a command server. There are no third-party library dependencies.
+
+| Feature | What you can do |
+| :--- | :--- |
+| Command execution | Run external programs and receive their output over TCP. |
+| Redirection | Read input from files and save command output. |
+| Client management | Inspect connected clients and disconnect sessions. |
+| Inactivity timeout | Close idle connections after a configurable interval. |
+| Terminal prompt | Customize the displayed time, username, hostname, and symbol. |
+| Diagnostics | Enable verbose output and write logs to a file. |
+
+## Getting started
 
 Requires **Linux**, **GCC**, and **Make**. There are no third-party library dependencies.
 
@@ -37,7 +60,7 @@ Connect from a second terminal:
 
 The client connects to `127.0.0.1`. The server listens on all interfaces. Run this educational command server only in a trusted, isolated environment: connections are unauthenticated and commands execute with the server user's permissions.
 
-## Try a session
+## Usage
 
 Enter these commands one at a time in the client:
 
@@ -91,17 +114,7 @@ Use `prompt time 1` for hours/minutes or `prompt time 2` to include seconds. Sta
 | `-v` | Print debug messages to standard error |
 | `-l FILE` | Write a log file; the file is overwritten on startup |
 
-## Inside the project
-
-```mermaid
-flowchart LR
-    A[Terminal client] <-->|TCP| B[Server listener]
-    B -->|fork per connection| C[Client handler]
-    C --> D[Internal command]
-    C -->|fork and execvp| E[External command]
-    E -->|Output through pipe| C
-    C -->|Response| A
-```
+## Development
 
 | File | Responsibility |
 | :--- | :--- |
@@ -112,13 +125,13 @@ flowchart LR
 | [`prompt.c`](prompt.c), [`prompt.h`](prompt.h) | Time, identity, hostname, and prompt formatting |
 | [`Makefile`](Makefile) | GCC build and cleanup |
 
-## Scope and limits
+## Limitations
 
 The command parser is intentionally small: it is not a full POSIX shell. Quoting, escaping, pipelines, and shell expansion are not implemented. Client/server buffers are 1,024 bytes; the client table has 128 slots. TCP response handling uses an `__END__` marker rather than a general framed protocol. Authentication, encryption, and production hardening are outside the assignment's scope.
 
 Build artifacts can be removed with `make clean`. There is no bundled automated test suite; the session above provides a functional smoke check.
 
-## About
+## Author
 
 **Kostiantyn Zaitsev · [@Gh0st3r0k](https://github.com/Gh0st3r0k)**
 
