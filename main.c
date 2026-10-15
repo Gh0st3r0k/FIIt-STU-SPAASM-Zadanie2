@@ -19,11 +19,11 @@ void print_help() {
 }
 
 int main(int argc, char *argv[]) {
-    int port = -1;      // Port number to use
-    int is_server = 0, is_client = 0;   // Role flags
-    int timeout_seconds = 30;   // Default timeout for server inactivity
-    int verbose = 0;    // Enable verbose/debug output
-    char *log_filename = NULL;  // File name for logging (optional)
+    int port = -1;                    // Port number to use
+    int is_server = 0, is_client = 0; // Role flags
+    int timeout_seconds = 30;         // Default timeout for server inactivity
+    int verbose = 0;                  // Enable verbose/debug output
+    char *log_filename = NULL;        // File name for logging (optional)
 
     // Parse command-line arguments
     for (int i = 1; i < argc; i++) {
@@ -82,7 +82,8 @@ int main(int argc, char *argv[]) {
     }
 
     // Close log file if it was opened
-    if (logfile) fclose(logfile);
+    if (logfile)
+        fclose(logfile);
 
     return 0;
 }

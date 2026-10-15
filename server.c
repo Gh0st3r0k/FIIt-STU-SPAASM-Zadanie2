@@ -27,11 +27,7 @@ int client_count = 0;
 volatile sig_atomic_t running = 1;
 
 // Signal handler for SIGTERM — stops the server loop
-void handle_sigterm(int sig) {
-    running = 0;
-}
-
-
+void handle_sigterm(int sig) { running = 0; }
 
 // Starts the server on the specified port and handles client connections
 void run_server(int port, int timeout_seconds, int verbose, FILE *logfile) {
@@ -40,9 +36,8 @@ void run_server(int port, int timeout_seconds, int verbose, FILE *logfile) {
     char timestr[32];
 
     // Allocate shared memory for client table
-    clients = mmap(NULL, sizeof(ClientInfo) * MAX_CLIENTS,
-               PROT_READ | PROT_WRITE,
-               MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    clients = mmap(NULL, sizeof(ClientInfo) * MAX_CLIENTS, PROT_READ | PROT_WRITE,
+                   MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
     if (clients == MAP_FAILED) {
         perror("mmap");
@@ -79,11 +74,14 @@ void run_server(int port, int timeout_seconds, int verbose, FILE *logfile) {
         exit(1);
     }
 
-    if (verbose) fprintf(stderr, "[DEBUG] Server running on port %d, waiting for client...\n", port);
+    if (verbose)
+        fprintf(stderr, "[DEBUG] Server running on port %d, waiting for client...\n", port);
     now = time(NULL);
     t = localtime(&now);
     strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", t);
-    if (logfile) fprintf(logfile, "[%s] [LOG] Server running on port %d, waiting for client...\n", timestr, port);
+    if (logfile)
+        fprintf(logfile, "[%s] [LOG] Server running on port %d, waiting for client...\n", timestr,
+                port);
 
     // Handle termination signal
     struct sigaction sa;
@@ -92,23 +90,25 @@ void run_server(int port, int timeout_seconds, int verbose, FILE *logfile) {
     sa.sa_flags = 0; // Disable SA_RESTART to allow breaking from accept()
     sigaction(SIGTERM, &sa, NULL);
 
-
-    // <===> Main server loop <===>
+    // Accept connections until shutdown.
     while (running) {
         // Accept new client
         client_fd = accept(server_fd, (struct sockaddr *)&address, &addrlen);
         if (client_fd < 0) {
-            if (!running && errno == EINTR) break; // interrupted by signal
+            if (!running && errno == EINTR)
+                break; // interrupted by signal
             perror("accept");
             continue;
         }
-    
-        if (verbose) fprintf(stderr, "[DEBUG] New client connected!\n");
+
+        if (verbose)
+            fprintf(stderr, "[DEBUG] New client connected!\n");
         now = time(NULL);
         t = localtime(&now);
         strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", t);
-        if (logfile) fprintf(logfile, "[%s] [LOG] New client connected!\n", timestr);
-    
+        if (logfile)
+            fprintf(logfile, "[%s] [LOG] New client connected!\n", timestr);
+
         // Find free slot in client table
         int index = -1;
         for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -126,18 +126,18 @@ void run_server(int port, int timeout_seconds, int verbose, FILE *logfile) {
             clients[index].active = 1;
         }
 
-        // <===> Handle client in child process <===>
+        // Give each client a dedicated child process.
         pid_t pid = fork();
         if (pid == 0) {
             // Child process
             pid_t my_pid = getpid();
             close(server_fd); // Child does not accept new connections
-    
+
             char buffer[1024] = {0};
             fd_set set;
             struct timeval timeout;
 
-            // <===> Per-client loop with timeout <===>
+            // Wait for client commands with an inactivity timeout.
             while (1) {
                 FD_ZERO(&set);
                 FD_SET(client_fd, &set);
@@ -159,31 +159,37 @@ void run_server(int port, int timeout_seconds, int verbose, FILE *logfile) {
                 // Read client input
                 memset(buffer, 0, sizeof(buffer));
                 int bytes = read(client_fd, buffer, sizeof(buffer) - 1);
-                if (bytes <= 0) break;
-    
+                if (bytes <= 0)
+                    break;
+
                 buffer[strcspn(buffer, "\n")] = '\0'; // Remove trailing newline
 
-                if (verbose) fprintf(stderr, "[DEBUG] Command from the client: %s\n", buffer);
+                if (verbose)
+                    fprintf(stderr, "[DEBUG] Command from the client: %s\n", buffer);
                 now = time(NULL);
                 t = localtime(&now);
                 strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", t);
-                if (logfile) fprintf(logfile, "[%s] [LOG] Command from the client: %s\n", timestr, buffer);
-    
+                if (logfile)
+                    fprintf(logfile, "[%s] [LOG] Command from the client: %s\n", timestr, buffer);
+
                 // Dispatch command
                 int result = handle_command(buffer, client_fd, verbose);
-                if (result == 1) break; // client requested quit
+                if (result == 1)
+                    break; // client requested quit
                 if (result == 2) {
                     // Server halt requested
                     sleep(1);
                     exit(0);
                 }
             }
-    
-            if (verbose) fprintf(stderr, "[DEBUG] Klient sa odpojil\n");
+
+            if (verbose)
+                fprintf(stderr, "[DEBUG] Klient sa odpojil\n");
             now = time(NULL);
             t = localtime(&now);
             strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", t);
-            if (logfile) fprintf(logfile, "[%s] [LOG] Klient sa odpojil\n", timestr);
+            if (logfile)
+                fprintf(logfile, "[%s] [LOG] Klient sa odpojil\n", timestr);
 
             // Mark client as inactive
             for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -212,9 +218,11 @@ void run_server(int port, int timeout_seconds, int verbose, FILE *logfile) {
 
     // Cleanup
     close(server_fd);
-    if (verbose) fprintf(stderr, "[DEBUG] Server stopped.\n");
+    if (verbose)
+        fprintf(stderr, "[DEBUG] Server stopped.\n");
     now = time(NULL);
     t = localtime(&now);
     strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", t);
-    if (logfile) fprintf(logfile, "[%s] [LOG] Server stopped.\n", timestr);
+    if (logfile)
+        fprintf(logfile, "[%s] [LOG] Server stopped.\n", timestr);
 }

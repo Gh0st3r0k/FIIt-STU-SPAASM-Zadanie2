@@ -17,13 +17,15 @@ void handle_input_redirect(const char *cmd, int client_fd) {
     char *cmd_copy_full = strdup(cmd);
     char *redirect_in = strchr(cmd_copy_full, '<');
 
-    if (!redirect_in) return;
+    if (!redirect_in)
+        return;
 
-    *redirect_in = '\0';  // split command and filename
+    *redirect_in = '\0'; // split command and filename
     redirect_in++;
 
     // trim leading spaces
-    while (*redirect_in == ' ') redirect_in++;
+    while (*redirect_in == ' ')
+        redirect_in++;
 
     // trim trailing spaces and newlines
     char *end = redirect_in + strlen(redirect_in) - 1;
@@ -51,7 +53,7 @@ void handle_input_redirect(const char *cmd, int client_fd) {
     if (pid == 0) {
         // Child process
 
-        dup2(fd, STDIN_FILENO);       // Redirect input from file
+        dup2(fd, STDIN_FILENO);         // Redirect input from file
         dup2(pipefd[1], STDOUT_FILENO); // Output → pipe
         dup2(pipefd[1], STDERR_FILENO);
         close(fd);
@@ -91,7 +93,6 @@ void handle_input_redirect(const char *cmd, int client_fd) {
     free(cmd_copy_full);
 }
 
-
 // Handles output redirection (command > file)
 
 // Executes the command and writes its output to the given file
@@ -99,13 +100,15 @@ void handle_output_redirect(const char *cmd, int client_fd) {
     char *cmd_copy_full = strdup(cmd);
     char *redirect_out = strchr(cmd_copy_full, '>');
 
-    if (!redirect_out) return;
+    if (!redirect_out)
+        return;
 
-    *redirect_out = '\0';        // trim command
-    redirect_out++;         // move to filename
+    *redirect_out = '\0'; // trim command
+    redirect_out++;       // move to filename
 
     // trim leading spaces
-    while (*redirect_out == ' ') redirect_out++; // убрать пробелы
+    while (*redirect_out == ' ')
+        redirect_out++; // Skip leading spaces.
 
     // trim trailing spaces/newlines
     char *end = redirect_out + strlen(redirect_out) - 1;
@@ -149,7 +152,6 @@ void handle_output_redirect(const char *cmd, int client_fd) {
     free(cmd_copy_full);
 }
 
-
 // Executes a simple command without redirection
 
 // Uses fork-exec model and sends output back to client
@@ -164,7 +166,7 @@ void execute_command(const char *cmd, int client_fd) {
     if (strchr(cmd, '<')) {
         handle_input_redirect(cmd, client_fd);
         return;
-    }    
+    }
 
     int pipefd[2];
     if (pipe(pipefd) == -1) {
@@ -202,16 +204,15 @@ void execute_command(const char *cmd, int client_fd) {
         char buffer[1024];
         int bytes;
         while ((bytes = read(pipefd[0], buffer, sizeof(buffer))) > 0) {
-            write(client_fd, buffer, bytes);   // send output to client
+            write(client_fd, buffer, bytes); // send output to client
         }
 
         close(pipefd[0]);
-        waitpid(pid, NULL, 0);  // wait for child process to finish
+        waitpid(pid, NULL, 0); // wait for child process to finish
     } else {
         perror("fork");
     }
 }
-
 
 // Handles internal and external commands
 
@@ -226,25 +227,25 @@ int handle_command(const char *cmd, int client_fd, int verbose) {
     // Handle internal commands
     if (strcmp(cmd, "help") == 0) {
         const char *msg =
-        "Internal commands:\n"
-        "  help                 - shows this help message\n"
-        "  quit                 - closes this connection\n"
-        "  halt                 - stops the server and all clients\n"
-        "  stat                 - lists all active clients\n"
-        "  abort <index>        - disconnects a specific client\n"
-        "  prompt <field> <val> - change prompt (time, username, devicename, end)\n"
-        "\n"
-        "Prompt customization examples:\n"
-        "  prompt username gh0st\n"
-        "  prompt devicename ghostOS\n"
-        "  prompt time 1|2\n"
-        "  prompt end >|#\n"
-        "\n"
-        "Special characters supported:\n"
-        "  ;   - separate multiple commands\n"
-        "  #   - comment (ignored)\n"
-        "  >   - redirect stdout to file\n"
-        "  <   - redirect stdin from file\n";
+            "Internal commands:\n"
+            "  help                 - shows this help message\n"
+            "  quit                 - closes this connection\n"
+            "  halt                 - stops the server and all clients\n"
+            "  stat                 - lists all active clients\n"
+            "  abort <index>        - disconnects a specific client\n"
+            "  prompt <field> <val> - change prompt (time, username, devicename, end)\n"
+            "\n"
+            "Prompt customization examples:\n"
+            "  prompt username gh0st\n"
+            "  prompt devicename ghostOS\n"
+            "  prompt time 1|2\n"
+            "  prompt end >|#\n"
+            "\n"
+            "Special characters supported:\n"
+            "  ;   - separate multiple commands\n"
+            "  #   - comment (ignored)\n"
+            "  >   - redirect stdout to file\n"
+            "  <   - redirect stdin from file\n";
         write(client_fd, msg, strlen(msg));
         const char *done_marker = "__END__\n";
         write(client_fd, done_marker, strlen(done_marker));
@@ -269,9 +270,8 @@ int handle_command(const char *cmd, int client_fd, int verbose) {
         for (int i = 0; i < MAX_CLIENTS; i++) {
             if (clients[i].active && clients[i].pid > 0) {
                 char *ip = inet_ntoa(clients[i].addr.sin_addr);
-                snprintf(line, sizeof(line),
-                         "#%d | PID: %d | FD: %d | IP: %s\n",
-                         i, clients[i].pid, clients[i].fd, ip);
+                snprintf(line, sizeof(line), "#%d | PID: %d | FD: %d | IP: %s\n", i, clients[i].pid,
+                         clients[i].fd, ip);
                 write(client_fd, line, strlen(line));
             }
         }
@@ -288,7 +288,8 @@ int handle_command(const char *cmd, int client_fd, int verbose) {
     char *cmd1 = strtok(cmd_copy, " ");
     if (cmd1 && strcmp(cmd1, "abort") == 0) {
 
-        if (verbose) fprintf(stderr, "[DEBUG] abort command received\n");
+        if (verbose)
+            fprintf(stderr, "[DEBUG] abort command received\n");
 
         char *cmd2 = strtok(NULL, " ");
         if (cmd2) {
@@ -313,7 +314,8 @@ int handle_command(const char *cmd, int client_fd, int verbose) {
                         exit(0);
                     }
                     char msg[128];
-                    snprintf(msg, sizeof(msg), "Command 'abort %d' - client %d has been aborted\n", index, index);
+                    snprintf(msg, sizeof(msg), "Command 'abort %d' - client %d has been aborted\n",
+                             index, index);
                     write(client_fd, msg, strlen(msg));
                 } else {
                     write(client_fd, "Error: The specified PID is not valid\n", 30);
@@ -324,22 +326,23 @@ int handle_command(const char *cmd, int client_fd, int verbose) {
         } else {
             write(client_fd, "Use: abort <index>\n", 20);
         }
-    
+
         const char *done = "__END__\n";
         write(client_fd, done, strlen(done));
         return 0;
     }
-    
 
     // Strip comments (marked with #)
     char *cleaned = strdup(cmd);
     char *comment = strchr(cleaned, '#');
-    if (comment) *comment = '\0';
+    if (comment)
+        *comment = '\0';
 
     // Split and execute multiple commands separated by ';'
     char *token = strtok(cleaned, ";");
     while (token != NULL) {
-        while (*token == ' ') token++; // skip leading spaces
+        while (*token == ' ')
+            token++; // skip leading spaces
         if (strlen(token) > 0) {
             execute_command(token, client_fd);
         }

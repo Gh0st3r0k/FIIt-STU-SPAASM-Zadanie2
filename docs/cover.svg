@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="320" viewBox="0 0 1080 320" role="img" aria-labelledby="title desc">
+<title id="title">SOCKET / SHELL</title><desc id="desc">SPAASM assignment 02 by Kostiantyn Zaitsev. Commands across a connection.</desc>
+<rect width="1080" height="320" rx="20" fill="#0b1220"/>
+<path d="M0 1H1080" stroke="#5eead4" stroke-width="3"/>
+<g font-family="ui-monospace, SFMono-Regular, Consolas, monospace">
+<text x="48" y="55" fill="#5eead4" font-size="13" letter-spacing="3">FIIT STU / SPAASM / 02</text>
+<text x="48" y="134" fill="#f8fafc" font-size="37" font-weight="700">SOCKET / SHELL</text>
+<text x="48" y="176" fill="#94a3b8" font-size="19">Commands across a connection.</text>
+<text x="48" y="249" fill="#5eead4" font-size="14">C  /  POSIX  /  TCP</text>
+<text x="48" y="279" fill="#64748b" font-size="13">Kostiantyn Zaitsev / @Gh0st3r0k</text>
+<rect x="662" y="64" width="370" height="213" rx="12" fill="#111e30" stroke="#243449"/>
+<circle cx="684" cy="84" r="4" fill="#5eead4"/><circle cx="700" cy="84" r="4" fill="#475569"/><circle cx="716" cy="84" r="4" fill="#475569"/>
+<text x="690" y="119" fill="#5eead4" font-size="18">&gt; echo hello</text><text x="690" y="149" fill="#cbd5e1" font-size="18">client</text><text x="690" y="179" fill="#cbd5e1" font-size="18">   | TCP</text><text x="690" y="209" fill="#cbd5e1" font-size="18">server</text><text x="690" y="239" fill="#cbd5e1" font-size="18">   | fork + exec</text>
+</g></svg>

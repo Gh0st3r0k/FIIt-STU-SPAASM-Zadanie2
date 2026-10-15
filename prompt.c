@@ -19,10 +19,10 @@ char prompt_devicename[64] = "";
 
 // Prints the current prompt to stdout
 void print_prompt() {
-    char time_str[32];          // Formatted time string
-    char hostname_buf[256];     // Buffer for system hostname
-    const char *hostname;       // Pointer to final hostname
-    const char *username;       // Pointer to final username
+    char time_str[32];      // Formatted time string
+    char hostname_buf[256]; // Buffer for system hostname
+    const char *hostname;   // Pointer to final hostname
+    const char *username;   // Pointer to final username
 
     // Determine which device name to display
     if (*prompt_devicename)

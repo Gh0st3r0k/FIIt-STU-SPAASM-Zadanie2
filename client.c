@@ -12,7 +12,7 @@
 void run_client(int port, int verbose, FILE *logfile) {
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
-    char timestr[32];   // Buffer for timestamp string
+    char timestr[32]; // Buffer for timestamp string
 
     int sock = 0;
     struct sockaddr_in serv_addr;
@@ -23,7 +23,6 @@ void run_client(int port, int verbose, FILE *logfile) {
         perror("socket");
         exit(1);
     }
-
 
     // Prepare server address
     serv_addr.sin_family = AF_INET;
@@ -40,11 +39,13 @@ void run_client(int port, int verbose, FILE *logfile) {
     }
 
     // Log and print connection established
-    if (verbose) fprintf(stderr, "[DEBUG] Connected to server on port %d\n", port);
+    if (verbose)
+        fprintf(stderr, "[DEBUG] Connected to server on port %d\n", port);
     now = time(NULL);
     t = localtime(&now);
     strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", t);
-    if (logfile) fprintf(logfile, "[%s] [LOG] Connected to server on port %d\n", timestr, port);
+    if (logfile)
+        fprintf(logfile, "[%s] [LOG] Connected to server on port %d\n", timestr, port);
 
     print_prompt(); // Show initial prompt
     fflush(stdout);
@@ -70,11 +71,13 @@ void run_client(int port, int verbose, FILE *logfile) {
             int bytes = read(sock, buf, sizeof(buf) - 1);
             if (bytes <= 0) {
                 // Server closed connection
-                if (verbose) fprintf(stderr, "[DEBUG] Server disconnected. Exiting.\n");
+                if (verbose)
+                    fprintf(stderr, "[DEBUG] Server disconnected. Exiting.\n");
                 now = time(NULL);
                 t = localtime(&now);
                 strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", t);
-                if (logfile) fprintf(logfile, "[%s] [LOG] Server disconnected. Exiting.\n", timestr);
+                if (logfile)
+                    fprintf(logfile, "[%s] [LOG] Server disconnected. Exiting.\n", timestr);
                 break;
             }
 
@@ -113,7 +116,8 @@ void run_client(int port, int verbose, FILE *logfile) {
         // Handle user input
         if (FD_ISSET(STDIN_FILENO, &fds)) {
             char input[1024];
-            if (!fgets(input, sizeof(input), stdin)) break;
+            if (!fgets(input, sizeof(input), stdin))
+                break;
 
             // Remove newline character
             input[strcspn(input, "\n")] = '\0';
@@ -140,11 +144,11 @@ void run_client(int port, int verbose, FILE *logfile) {
                     else
                         printf("Error: Time can only be 1 or 2\n");
                 } else if (strcmp(arg1, "username") == 0) {
-                    strncpy(prompt_username, arg2, sizeof(prompt_username)-1);
-                    prompt_username[sizeof(prompt_username)-1] = '\0';
+                    strncpy(prompt_username, arg2, sizeof(prompt_username) - 1);
+                    prompt_username[sizeof(prompt_username) - 1] = '\0';
                 } else if (strcmp(arg1, "devicename") == 0) {
-                    strncpy(prompt_devicename, arg2, sizeof(prompt_devicename)-1);
-                    prompt_devicename[sizeof(prompt_devicename)-1] = '\0';
+                    strncpy(prompt_devicename, arg2, sizeof(prompt_devicename) - 1);
+                    prompt_devicename[sizeof(prompt_devicename) - 1] = '\0';
                 } else if (strcmp(arg1, "end") == 0) {
                     if (strlen(arg2) > 0)
                         prompt_symbol = arg2[0];
